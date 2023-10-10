@@ -20,6 +20,10 @@ shadow shadow.yaml
 ```
 
 To ensure everything went allright
+
+* no errors in any stderr: eg: shadow.data/hosts/peer1/wakunode2.1000.stderr
+
+
 ```
 TODO
 ```
