@@ -30,7 +30,7 @@ hosts:
   peer1: &client_host
     network_node_id: 0
     processes:
-    - path: ../nwaku/build/wakunode2
+    - path: ../../nwaku/build/wakunode2
       args: --relay=true
             --max-connections=100
             --log-level=INFO
