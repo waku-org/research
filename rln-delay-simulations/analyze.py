@@ -14,6 +14,6 @@ with open(file, "r") as file:
             latencies.append(int(x))
 
 array = np.array(latencies)
-print("Amount of samples:", array.size)
-print("Percentiles. P25:", np.percentile(array, 25), "P25:", np.percentile(array, 75), "P95:", np.percentile(array, 95))
-print("Statistics. mode_value:", st.mode(array).mode, "mode_count:", st.mode(array).count, "mean:", np.mean(array), "max:", array.max(), "min:", array.min())
+print(f"number_samples={array.size}")
+print(f"Percentiles. P25={np.percentile(array, 25)} P25={np.percentile(array, 75)} P95={np.percentile(array, 95)}")
+print(f"Statistics. mode_value={st.mode(array).mode} mode_count={st.mode(array).count} mean={np.mean(array)} max={array.max()} min={array.min()}")
