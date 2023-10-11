@@ -40,7 +40,7 @@ hosts:
             --rln-relay-membership-index=0
             --nat=extip:0.0.0.0
       start_time: 5s
-      environment: {"PEERS": "1000", "CONNECTTO": "50", "NUMPUBLISHERS": "5", MSGSIZEKBYTES="1"}
+      environment: {"PEERS": "1000", "CONNECTTO": "50", "NUMPUBLISHERS": "5", "MSGSIZEKBYTES": "1"}
   peer2: *client_host
   peer3: *client_host
   peer4: *client_host
