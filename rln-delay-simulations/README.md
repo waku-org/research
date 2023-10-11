@@ -67,7 +67,11 @@ number_samples=14985
 Percentiles. P75=452.0 P95=587.0
 Statistics. mode_value=313 mode_count=77 mean=360.5741741741742 max=868 min=100
 
-run 2 same data.
+10 Mb data
+Config: file: latency.txt field: arrival_diff=
+number_samples=14985
+Percentiles. P75=741.0 P95=901.0
+Statistics. mode_value=596 mode_count=108 mean=615.3937937937937 max=1227 min=107
 
 ```
 
