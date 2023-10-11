@@ -1,30 +1,92 @@
 ## rln-delay-simulations
 
-This folder contains a `shadow` configuration to simulate multiple `nwaku` nodes in an end to end setup. Note that `nwaku` requires some minor modifications in the code, that can be found in the `simulations` branch.
+This folder contains a `shadow` configuration to simulate `1000` `nwaku` nodes in an end to end setup:
+* `nwaku` binaries are used, built with `make wakunode2`
+* Minor changes in `nwaku` are required, to timestamp messages and connect the peers without discovery. See [simulations](https://github.com/waku-org/nwaku/tree/simulations) branch.
+* `rln` is used with hardcoded memberships, to avoid the sepolia node + contract, [see](https://raw.githubusercontent.com/waku-org/nwaku/master/waku/waku_rln_relay/constants.nim).
+* Focused on measuring message propagation delays. Each message that is sent, encodes the timestamp when it was created.
+* Same setup can be reused with different parameters, configured either via flags (see `shadow.yaml`) or modifying the code (see [simulations](https://github.com/waku-org/nwaku/tree/simulations)).
+* TODO delay  + bandwidth TODO add payload messages.
 
-## how to run
+## How to run
 
 Get `nwaku` code with the modifications and compile it. See diff of latest commit.
 
+Get the [simulations](https://github.com/waku-org/nwaku/tree/simulations) branch, build it and start the [shadow](https://github.com/shadow/shadow) simulation. Ensure `path` points to the `wakunode2` binary and you have enough resources.
+
 ```
-https://github.com/waku-org/nwaku.git
+git clone https://github.com/waku-org/nwaku.git
 cd nwaku
 git checkout simulations
 make wakunode2
-```
-
-Run the simulations:
-
-```
 shadow shadow.yaml
 ```
 
-To ensure everything went allright
+## How to analyze
+
+First check that the simulation finished ok. Check that the numbers match.
+```
+grep -nr 'ended_simulation' shadow.data | wc -l
+# expected: 1000 (simulation finished ok in all nodes)
+
+grep -nr '\[TX MSG\]*' shadow.data | wc -l
+# expected: 15 (total of published messages)
+```
+
+
 
 * no errors in any stderr: eg: shadow.data/hosts/peer1/wakunode2.1000.stderr
 * see msg published: grep -nr '\[TX MSG\]*' shadow.data | wc -l
 * grep -nr '\[RX MSG\]*' shadow.data | wc -l
 
+
+calculate metrics:
+
+latency
+```
+grep -nr '\[RX MSG\]*' shadow.data > latency.txt
+python metrics.py latency.txt "diff: " " milliseconds"
+
+Amount of samples: 14985
+percentile 75:  300.0
+percentile 25:  201.0
+mode : ModeResult(mode=300, count=4650)
+worst:  401
+best:  100
+
+
+
+file:  latency.txt
+parse start:  diff:   parse end:   milliseconds
+[301 400 400 ... 300 502 601]
+Amount of samples: 14985
+percentile 75:  402.0
+percentile 25:  202.0
+mode : ModeResult(mode=400, count=1542)
+worst:  1300
+best:  100
+
+```
+
+mesh
+```
+grep -nr 'mesh size' shadow.data > mesh.txt
+python metrics.py mesh.txt "mesh size: " " of topic"
+
+Amount of samples: 1000
+percentile 75:  7.0
+percentile 25:  5.0
+mode : ModeResult(mode=5, count=248)
+worst:  12
+best:  4
+
+Amount of samples: 1000
+percentile 75:  3.0
+percentile 25:  2.0
+mode : ModeResult(mode=2, count=469)
+worst:  5
+best:  2
+```
 
 ```
 TODO
@@ -34,4 +96,14 @@ Output
 
 ```
 TODO
+```
+
+
+```
+Amount of samples: 14985
+percentile 75:  300.0
+percentile 25:  201.0
+mode : ModeResult(mode=300, count=4650)
+worst:  401
+best:  100
 ```
