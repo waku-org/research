@@ -10,7 +10,6 @@ latencies = []
 with open(file, "r") as file:
     for line in file.readlines():
         if field in line:
-            print(field, line)
             x = line.strip().split(field)[1].split(" ")[0]
             latencies.append(int(x))
 
