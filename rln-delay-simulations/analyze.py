@@ -9,6 +9,11 @@ latencies = []
 with open(file, "r") as file:
     for line in file.readlines():
         if field in line:
+            seq = int(line.strip().split("seq=")[1].split(" ")[0])
+            # first message bias the latency due to tcp flow control
+            if seq in [0]:
+                continue
+            seq = line.strip().split("seq=")[1].split(" ")[0]
             x = line.strip().split(field)[1].split(" ")[0]
             latencies.append(int(x))
 

@@ -1,7 +1,7 @@
 general:
   bootstrap_end_time: 30s
   heartbeat_interval: 12s
-  stop_time: 4m
+  stop_time: 10m
   progress: true
 
 experimental:
@@ -40,7 +40,7 @@ hosts:
             --rln-relay-membership-index=0
             --nat=extip:0.0.0.0
       start_time: 5s
-      environment: {"PEERS": "1000", "CONNECTTO": "50", "NUMPUBLISHERS": "5", "MSGSIZEKBYTES": "1"}
+      environment: {"PEERS": "1000", "CONNECTTO": "50", "NUMPUBLISHERS": "1", "MSGSIZEKBYTES": "10"}
   peer2: *client_host
   peer3: *client_host
   peer4: *client_host
