@@ -6,6 +6,7 @@ This folder contains a `shadow` configuration to simulate `1000` `nwaku` nodes i
 * Focused on measuring message propagation delays. Each message that is sent, encodes the timestamp when it was created.
 * Requires significant resources to run (tested with 256 GB RAM)
 * See simulation parameters: latency, bandwidth, amount of nodes, amount of publishers.
+* Note that due to TCP flow control, when using big messages the first ones to arrive will show a higher delay. Filter them out to not bias the measurements.
 
 ## How to run
 
@@ -27,7 +28,10 @@ grep -nr 'ended_simulation' shadow.data | wc -l
 # expected: 1000 (simulation finished ok in all nodes)
 
 grep -nr 'tx_msg' shadow.data | wc -l
-# expected: 15 (total of published messages)
+# expected: 10 (total of published messages)
+
+grep -nr 'rx_msg' shadow.data | wc -l
+# expected: 9990 (total rx messages)
 ```
 
 Get metrics:
