@@ -24,3 +24,4 @@ if __name__ == "__main__":
     print(f"number_samples={array.size}")
     print(f"Percentiles. P75={np.percentile(array, 75)} P95={np.percentile(array, 95)}")
     print(f"Statistics. mean={np.mean(array)} max={array.max()} min={array.min()}")
+    print(f"Statistics. var={np.var(array)}")
