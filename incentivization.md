@@ -48,7 +48,7 @@ There have been many example of incentivized decentralized systems.
 
 ## Early P2P file-sharing
 
-Early P2P file-sharing networks employed reputation-based approaches and stickly defaults.
+Early P2P file-sharing networks employed reputation-based approaches and sticky defaults.
 For instance, in BitTorrent, a peer by default shares pieces of a file before having received it in whole.
 At the same time, the bandwidth that a peer can use depends on how much is has shared previously.
 This policy rewards nodes who share by allowing them to download file faster.
@@ -125,13 +125,121 @@ To decrease the chance of missing some messages, a client may query multiple ser
 
 We propose Store-i13n-MVP - the simplest version of i13n in Store.
 
-In broad strokes:
-- client: I want this piece of history
-- server (after internal calculations): here is the price
-- client: pays (if price is ok; otherwise conversation ends)
-- server: responds with data
-- client: checks the data: if data is irrelevant - decreases server's reputation
-- client (optionally): queries another server; compares responses; maybe decreases reputation of both (?) if responses diverge. Or queries 3 servers and assumes that messages returned by 2/3 or 3/3 are "real" ("Never Take Two Chronometers to Sea").
+## Current protocol
+
+As currently defined, the Store protocol works as follows:
+1. the client sends a `HistoryQuery` to the server;
+2. the server sends a `HistoryResponse` to the client.
+
+A response may come in multiple parts (pagination).
+Pagination parameters are defined in `PagingInfo` message inside both the `HistoryQuery` and a ``HistoryResponse``.
+Let us ignore the pagination considerations for now (assume it just works).
+
+## Proposed modification
+
+We proposes modification consists of three parts:
+1. price negotiation;
+2. reputation accounting;
+3. results cross-checking.
+
+### Price negotiation
+
+Upon receiving a `HistoryQuery`, the server does the following:
+1. Internally calculate the price it wants to charge.
+2. Send a message to the client: "I can serve your request for N tokens".
+3. If the client agrees, it pays and sends a proof of payment to the server.
+4. The server sends the response.
+
+Price discovery to be discussed in a later section.
+In particular, we will reason about which message properties (age, size, etc) should contribute to the price.
+
+Potential issues:
+- A malicious client overwhelms a server with requests and doesn't follow through. A countermeasure: ignore requests from the same client if they come too often.
+- (other attacks?)
+
+### Proof of payment
+
+If the client agrees to the price, it sends a _proof of payment_ to the server.
+The nature of such proof depends on the means of payment.
+Assuming the payment takes place on a blockchain, it could simply be a transaction hash.
+
+It's unclear if we need to ensure that a particular txid is linked to a particular request.
+Including request ID into the payment (a-la "memo field") threatens privacy.
+Not including it looks fine though, assuming the server keeps track which transactions it had received correspond to which requests (and responses).
+
+TODO: explore the idea of service credentials:
+- [https://forum.vac.dev/t/vac-sustainability-and-business-workshop/116](https://forum.vac.dev/t/vac-sustainability-and-business-workshop/116 "https://forum.vac.dev/t/vac-sustainability-and-business-workshop/116")
+- [https://github.com/vacp2p/research/issues/99](https://github.com/vacp2p/research/issues/99 "https://github.com/vacp2p/research/issues/99") 
+- [https://github.com/vacp2p/research/issues/135](https://github.com/vacp2p/research/issues/135 "https://github.com/vacp2p/research/issues/135")
+
+#### Who pays first?
+
+We have to make a design decision: who pays first?
+Our options are:
+1. the client pays first and trust the server to deliver;
+2. the client pays after the fact: the server trusts the client;
+3. the client pays partly upfront and partly after the fact;
+4. there is a third party (escrow) that ensures atomicity (a trusted third party or a semi-trusted, semi-automated entity like a smart contract).
+
+Here are our design considerations:
+- the MVP protocol should be simple;
+- servers are considered to be a more "permanent" entities, that are more likely to have a long-lived ID;
+- it is more important to protect the clients's privacy than the server's privacy: a client knows what server it queries in any case, while ideally the server shouldn't know who the client is. (This isn't entirely rigorous, think about it.)
+
+With that in mind, we suggest the scheme where the client pays first.
+It is simpler than splitting the payment, which would involve a) two payments, and b) negotiating the split.
+It is also simpler than a trusted third party (the centralized flavor of which we want to avoid anyway).
+Comparing to "client pays after the fact", we observe that there is a balance between risk and privacy.
+If the server "pays first", it assumes risk.
+This risk should be decreased or paid for.
+Decreasing the risk means keeping track of the clients' reputation from the server's standpoint, which may endanger clients' privacy.
+Paying for the risk means increasing prices (i.e., well-behaved clients in aggregate pay for free-riders).
+We suggest that the preferable design is the opposite: the client assumes the risk.
+Why this is better:
+- it's more likely that the server is professionalized: serving data is its business which it wouldn't want to sabotage;
+- the client keeps their privacy, essentially paying for privacy with taking on more risk - this is OK, as risk is "anonymous", and reputation is not.
+
+### Reputation accounting
+
+Our protocol assumes that the client trusts the server.
+In particular, the client pays first, and then hopes that the server sends back the response.
+A server may technically take the money and do nothing.
+To discourage this behavior, we use reputation: a client keeps track of the server's behavior.
+
+The MVP version could be:
+- all servers start with zero reputation
+- if the server honors the request, it gets +1;
+- if the server does not respond after the initial query, it gets -1;
+- if the server takes the money and _then_ does not respond, it gets banned (this client will never query it again).
+
+Potential issues:
+- An attacker can establish new server identities and continually run away with clients' money.
+	- countermeasures:
+		- a client only queries "trusted" servers (centralization);
+		- when querying a new server, a client first sends a small (i.e. cheap) request to not risk too much.
+- Think about how the ban mechanism can be abused. Can an attacker "frame" competitors' servers so that many clients ban them?
+
+### Results cross-checking
+
+> Never go to sea with two chronometers; take one or three.
+
+The client not only wants to receive _some_ response, it wants to receive all relevant messages and only them.
+We don't have consensus over history, so it's impossible to know for sure if a message is relevant.
+In non security-critical settings, a client may just accept the risk that some messages may be missing.
+For more certainty, the client may query 3 independent servers and compare the results.
+Only messages returned by 3/3 or 2/3 are considered relevant.
+
+Servers' reputation may then be adjusted, but it's not completely obvious how:
+- imagine a server whose response has a message that no other response has.
+	- should we punish it for inserting a fake message into history? or
+	- should we reward it for providing the data that other are (perhaps intentionally) hiding?
+- Same with a server that _misses_ some message that others have delivered: we don't know what the ground truth is anyway.
+
+However, in the absence of a better mechanism, we can _define_ 2/3 as a validity criteria.
+Then, it follows that a server that does _not_ have the "2/3" message is either malicious (censors) or badly managed (went offline when this message was propagated).
+In any case, its reputation should be decreased.
+
+Note: the cross-checking part is optional and may be considered to be out of scope for the MVP protocol.
 
 # Evaluation
 
@@ -215,6 +323,9 @@ A malicious Store server can spy on a client in the following ways:
 - analyze the timing of requests;
 - link requests done by the same client.
 
+Also, citing the [Store specification](https://rfc.vac.dev/spec/13/):
+> The main security consideration ... is that a querying node have to reveal their content filters of interest to the queried node, hence potentially compromising their privacy.
+
 ## Payment methods
 
 The MVP protocol is agnostic to payment methods.
@@ -266,7 +377,7 @@ Possible explanations:
 - the server didn't receive the message when it was broadcast;
 - the server deliberately withholds the message.
 
-Contrary to blockchains, Relay doesn't have consensus over relayed messages.
+Contrary to blockchains, Relay doesn't have consensтus over relayed messages.
 Therefore, it's impossible to distinguish between the two scenarios above.
 
 ### Server: Irrelevant response
