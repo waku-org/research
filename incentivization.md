@@ -100,7 +100,7 @@ Store is a client-server protocol that currently works as follows:
 
 The response may be split into multiple parts, as specified by pagination parameters in `PagingInfo`.
 
-Let us define a relevant message as a message that has been broadcast via Relay within the time frame that the client specified.
+Let us define a relevant message as a message that has been broadcast via Relay within the time frame and matching the filter criteria that the client specified.
 The desired functionality of Store can be described as following:
 
 - the server responds quickly;
