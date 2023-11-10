@@ -104,7 +104,7 @@ Let us define a relevant message as a message that has been broadcast via Relay 
 The desired functionality of Store can be described as following:
 
 - the server responds quickly;
-- all the messages in the response are relevant;
+- all relevant messages are in the response;
 - the response contains only relevant messages.
 
 # Waku Store incentivization MVP
