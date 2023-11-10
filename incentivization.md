@@ -159,7 +159,7 @@ It is also simpler than a trusted third party (the centralized flavor of which w
 
 Comparing to "client pays after the fact", we observe that there is a balance between risk and privacy.
 If the server "pays first", it assumes risk, which should be decreased or paid for.
-Decreasing the risk means that the client keeps track of the clients' reputation, which endangers privacy.
+Decreasing the risk means that the server keeps track of the clients' reputation, which endangers privacy.
 Paying for the risk means higher prices (well-behaved clients pay for free-riders).
 
 We propose that the client assumes the risk and pays for it because:
@@ -172,14 +172,15 @@ We use reputation to discourage the server from taking the payment and not respo
 The client keeps track of the server's reputation:
 - all servers start with zero reputation;
 - if the server honors the request, it gets +1;
-- if the server does not respond to the initial request, it gets -1;
-- if the server takes the money and does not respond before a timeout, the client will never query it again.
+- if the server does not respond before the payment, it gets -1;
+- if the server does not respond after the payment and before a timeout, the client will never query it again.
 
 Potential issues:
 - An attacker can establish new server identities and continue running away with clients' money. Countermeasures:
 	- a client only queries "trusted" servers (which however leads to centralization);
 	- when querying a new server, a client first sends a small (i.e. cheap) request as a test.
 - The ban mechanism can theoretically be abused. For instance, a competitor may attack the victim server and cause the clients who were awaiting the response to ban that server. Countermeasure: prevent DoS-attacks.
+- Servers may also farm reputation by running clients and querying their own server.
 
 # Payment methods
 
@@ -247,7 +248,7 @@ More formal calculations should be done, under certain assumptions about message
 
 If the server offers the price that is too high for the client, the client has no means to make a counter-offer.
 This results in wasted bandwidth on requests that don't result in responses.
-We could introduce a price negotiation step in the protocol, where the client and the server would exchange messages naming their acceptable prices until they agree of one of them decides to stop the negotiation.
+We could introduce a price negotiation step in the protocol, where the client and the server would exchange messages naming their acceptable prices until they agree, or one of them decides to stop the negotiation.
 We should make sure that price negotiation does not become a DoS vector (i.e., a client initiates a lengthy negotiation but ultimately rejects, wasting the server's resources).
 
 ## Results cross-checking
