@@ -92,7 +92,6 @@ While [RLN-Relay](https://rfc.vac.dev/spec/17/) adds monetary punishments for sp
 ## Waku Store
 
 In this document, we focus on i13n for Waku Store.
-Similar techniques may be later applied to other Waku light protocols.
 
 Store is a client-server protocol that currently works as follows:
 1. the client sends a `HistoryQuery` to the server;
@@ -112,61 +111,62 @@ The desired functionality of Store can be described as following:
 In this section, we aim to define the simplest viable i13n modification to the Store protocol.
 
 We propose to add the following aspects to the protocol:
-1. price offer;
-2. proof of payment;
-3. reputation accounting.
+1. pricing:
+	1. cost calculation
+	2. price advertisement
+	3. price negotiation
+2. payment:
+	1. payment itself
+	2. proof of payment
+3. reputation
+4. results cross-checking
 
-### Price offer
+The MVP version of the protocol has no price advertisement, no price negotiation, and no results cross-checking.
+Other elements are present in a minimal version.
 
+## Pricing
+
+For MVP, we assume a constant price per hour of history.
 After the client sends a `HistoryQuery` to the server:
-1. The server internally calculates the offer price  and sends it to the client.
+1. The server internally calculates the offer price and sends it to the client.
 2. If the client agrees, it pays and sends a proof of payment to the server.
 3. If the client does not agree, it sends a rejection message to the server.
-4. If the server receives a valid proof of payment before a certain timeout, it sends the response to the client.
+4. If the server receives a valid payment before a certain timeout, it sends the response to the client.
 5. If the server receives a rejection message, or receives no message before a timeout, the server assumes that the client has rejected the offer.
 
-Potential issues:
-- The client overwhelms a server with requests but doesn't proceed with payment. Countermeasure: ignore requests from the same client if they come too often.
-- The server and the client have no means to negotiate the price - see a later section on price negotiation.
+### Future work
 
-### Proof of payment
+- DoS protection: a client can overwhelm a server with requests and not proceed to payment. Countermeasure: ignore requests from the same client if they come too often; generalize a reputation system to servers ranking clients.
+- Cost calculation - see https://github.com/waku-org/research/issues/35
+- Price advertisement - see https://github.com/waku-org/research/issues/51
+- Price negotiation - see https://github.com/waku-org/research/issues/52
+
+## Payment
 
 If the client agrees to the price, it sends a _proof of payment_ to the server.
-The nature of such proof depends on the means of payment.
-Assuming the payment takes place on a blockchain, it could simply be a transaction hash (`txid`).
+For the MVP, each request is paid for with a separate transaction.
+The transaction hash (`txid`) acts as a proof of payment.
 
-It's unclear whether we need to ensure that a given `txid` is linked to a particular request.
-Including request ID into the payment (a-la "memo field") threatens privacy.
-Not including it could lead to the server's confusion regarding which received payments correspond to which requests.
-
-#### Who pays first?
-
-We have to make a design decision: who pays first?
-Our options are:
-1. the client pays first;
-2. the client pays after the fac;
-3. the client pays partly upfront and partly after the fact;
-4. a third party (escrow) ensures atomicity (it may be a centralized trusted third party or a semi-trusted entity like a smart contract).
+Note that client gives proof of payment before it receives the response.
+Other options could be:
+1. the client pays after the fact;
+2. the client pays partly upfront and partly after the fact;
+3. an escrow (a centralized trusted third party, or a semi-trusted entity like a smart contract) ensures atomicity .
 
 Our design considerations are:
 - the MVP protocol should be simple;
-- servers are more "permanent" entities and are more likely to have a long-lived identities;
-- it is more important to protect the clients's privacy than the server's privacy: a client knows what server it queries, while the server ideally shouldn't know who the client is.
+- servers are more "permanent" entities and are more likely to have long-lived identities;
+- it is more important to protect the clients's privacy than the server's privacy.
 
-With that in mind, we suggest that the client pays first.
-It is simpler than splitting the payment, which would involve a) two payments, and b) negotiating the split.
-It is also simpler than a trusted third party (the centralized flavor of which we want to avoid).
+In light of these criteria, we suggest that the client pays first: this is simpler than splitting the payment, more secure than trusting a third party, and (arguably) more privacy-preserving for the client than the alternative where the client pays after the fact (that would encourage servers to deanonymize clients to prevent fraud).
 
-Comparing to "client pays after the fact", we observe that there is a balance between risk and privacy.
-If the server "pays first", it assumes risk, which should be decreased or paid for.
-Decreasing the risk means that the server keeps track of the clients' reputation, which endangers privacy.
-Paying for the risk means higher prices (well-behaved clients pay for free-riders).
+### Future work
 
-We propose that the client assumes the risk and pays for it because:
-- the server is more likely to be professionalized, so dropping paid requests would sabotage its business;
-- the client pays for their privacy by assuming risk, which is acceptable (risk is "anonymous", reputation is not).
+- Add more payment methods - see https://github.com/waku-org/research/issues/58
+- Design a subscription model with service credentials - see https://github.com/waku-org/research/issues/59
+- Add privacy to service credentials - see https://github.com/waku-org/research/issues/60
 
-### Reputation accounting
+## Reputation
 
 We use reputation to discourage the server from taking the payment and not responding.
 The client keeps track of the server's reputation:
@@ -182,162 +182,30 @@ Potential issues:
 - The ban mechanism can theoretically be abused. For instance, a competitor may attack the victim server and cause the clients who were awaiting the response to ban that server. Countermeasure: prevent DoS-attacks.
 - Servers may also farm reputation by running clients and querying their own server.
 
-# Payment methods
+### Future work
 
-The MVP protocol is agnostic to payment methods.
-A payment method should generally have the following properties:
-- wide distribution;
-- good liquidity;
-- low latency;
-- good privacy;
-- high security.
+Design a more comprehensive reputation system:
+- local reputation - see https://github.com/waku-org/research/issues/48
+- global reputation - see https://github.com/waku-org/research/issues/49
 
-Let's list all decentralized payment options:
-- ETH;
-- a token on Ethereum (ERC20);
-- a token on another EVM-based blockchain or a rollup;
-- a token on a non-EVM blockchain (such as BTC / Lightning).
+Reputation may also be use to rank clients to prevent DoS attacks when a client overwhelms the server with requests.
+While rate limiting stops such attack, the server would need to link requests coming from one client, threatening its privacy.
 
-Note also that there may be different market models that may motivate the choice of the payment method.
-One model assumes that each client pays for its own requests.
-Another model includes (centralized?) entities (i.e., developers of Waku-based apps) that pay for their users in bulk.
+## Results cross-checking
 
-We also note that:
-- eventually the protocol may support multiple payment methods;
-- however, the MVP version should be simple, which likely means supporting just one payment method;
-- if the initially supported payment method is an ERC-20 token, it should be easy to add other ERC-20 tokens later, including a potential WAKU token.
+Cross-checking is absent in MVP but should be considered later.
+We can separate it into two questions: the client want to ensure that servers are a) not censoring real messages; b) not injecting fake messages into history.
+
+- Cross-checking the results against censorship - see https://github.com/waku-org/research/issues/57
+- Use RLN to limit fake message insertion - see https://github.com/waku-org/research/issues/38
 
 # Evaluation
 
 We should think about what the success metrics for an incentivized protocol are, and how to measure them both in simulated settings, as well as in a live network.
 
-# Future work
+# Longer-term future work
 
-Let us now outline some of the open questions beyond MVP.
-## Price discovery
-
-To offer a reasonable price, a server should understand its costs.
-The costs of a Store server are storage, bandwidth, and computation.
-A Store server does two things: it stores messages, and serves messages to clients.
-
-The cost of storing messages is composed of:
-- storage:
-	- storage costs of all older messages: proportional to cumulative (message size x time stored);
-	- the cost for I/O operations for storing new messages (roughly constant per unit time, though may fluctuate due to caching, disk fragmentation, etc.);
-- bandwidth (download) for receiving new messages;
-- computational costs.
-
-The cost of serving messages to clients, per unit time, is composed of:
-- bandwidth
-	- upload: proportional to (number of clients) x (length of time frame requested) x (message size);
-	- download: proportional to the number of requests;
-- computational cost of handling requests.
-
-Storage is likely the dominating cost.
-Storage costs is proportional to the amount of information stored and the time it is stored for.
-A cumulative cost of storing a single message grows linearly with time.
-The number of messages in a response may be approximated by the length of the time frame requested.
-
-Computation: the server spends computing cycles while handling requests.
-This costs likely depends not only on the computation itself, but also at the database structure.
-For example, retrieving old or rarely requested messages from the local database may be more expensive than fresh or popular ones due to caching.
-
-More formal calculations should be done, under certain assumptions about message flow (i.e., that it is constant).
-
-## Price negotiation
-
-If the server offers the price that is too high for the client, the client has no means to make a counter-offer.
-This results in wasted bandwidth on requests that don't result in responses.
-We could introduce a price negotiation step in the protocol, where the client and the server would exchange messages naming their acceptable prices until they agree, or one of them decides to stop the negotiation.
-We should make sure that price negotiation does not become a DoS vector (i.e., a client initiates a lengthy negotiation but ultimately rejects, wasting the server's resources).
-
-## Results cross-checking
-
-> Never go to sea with two chronometers; take one or three.
-
-The client wants to receive all relevant messages and only them.
-Without consensus, it's impossible to check if a message is relevant.
-In non security-critical settings, a client may accept the risk that some messages may be missing.
-For more certainty, the client may query 3 independent servers and compare the results.
-Messages returned by 3/3 or 2/3 are considered relevant.
-
-The servers' reputation may then be adjusted, but it's not completely obvious how.
-Let A, B, C be the three servers.
-Imagine there is a message that only A's response contains.
-From the client's standpoint, this message is not relevant.
-
-How should A's reputation be adjusted?
-Should A be punished for inserting a fake message into history?
-Or should A be rewarded for providing a "rare" message that B and C have either missed or are intentionally censoring?
-
-## Preventing DoS attacks
-
-The client can overwhelm the server in at least two ways:
-- sending many requests;
-- sending a request that covers a very long time frame.
-
-The former can be prevented with rate limiting: the server would disconnect from such clients.
-The latter can be mitigated economically, if the price depends on the length of the requested time frame.
-
-## Heuristics of relevance
-
-In the absence of consensus, we can't prove whether a message has indeed been broadcast in the past.
-Instead, we use RLN proofs as a proxy metric.
-RLN (rate limiting nullifiers) is a method of spam prevention in Relay ([RLN-Relay](https://rfc.vac.dev/spec/17/)).
-The message sender generates a proof of enrollment in a membership set.
-Multiple proofs generated and revealed within one epoch lead to punishment.
-A valid RLN proof signifies that the message has been generated by a node with an active membership during a particular epoch.
-Note that a malicious node with a valid membership can generate messages but not broadcast them.
-Such messages would not be known to other nodes, but they would satisfy the RLN-based heuristic.
-We may later look into other ways for the client to check message relevance.
-
-## Privacy considerations
-
-Light protocols, in general, have weaker privacy properties than P2P protocols.
-In a client-server exchange, a client wants to selectively interact with the network.
-By doing so, it often reveals what it is interested in (e.g., subscribes to particular topics).
-
-A malicious Store server can spy on a client in the following ways:
-- track the topics the client is interested in;
-- analyze the periods of history interesting for the client;
-- analyze the timing of requests;
-- link requests made by the same client.
-
-Citing the [Store specification](https://rfc.vac.dev/spec/13/):
-> The main security consideration ... is that a querying node have to reveal their content filters of interest to the queried node, hence potentially compromising their privacy.
-
-### Service credentials
-
-Service credentials break the link between paying for the service and the service itself.
-Such scheme may be explored in the context of payment methods for higher user privacy.
-
-In a credential-based scheme:
-1. the client deposits funds into an on-chain pool;
-2. the client generates a credential that proves the transfer in zero-knowledge;
-3. the client sends the credential to the server;
-4. the server uses the credential to pull funds from the pool.
-
-Further reading: [one](https://forum.vac.dev/t/vac-sustainability-and-business-workshop/116), [two](https://github.com/vacp2p/research/issues/99), [three](https://github.com/vacp2p/research/issues/135).
-
-## Relation to long-term storage solutions
-
-Decentralized file storage networks, such as Codex, could (and perhaps should) be the backend for Store servers.
-Alternatives to Codex include IPFS, Filecoin, Sia, and Storj.
-We should explore this landscape and understand its relevance for Store i13n.
-
-## Should message senders pay?
-
-To ensure protocol sustainability, we should analyze its game theoretic properties.
-Note that there are in fact more than two party to the Store protocol:
-- the server;
-- the client;
-- the sender of the message.
-
-In particular, it is the _sender_ who imposes major costs on the server: the more messages the sender (or, indeed, multiple senders) broadcast, the higher are the Store server's storage costs.
-However, it is the Store client who pays for fetching messages.
-Is it fair / sustainable that the client pays for costs that the sender causes?
-Would it be desired or possible to make the sender pay as well (see [issue](https://github.com/waku-org/research/issues/32))?
-
-## Generalization for other Waku protocols
-
-Think about how to generalize Store i13n to other Waku light protocols: Lightpush and Filter.
+- Analyze privacy issues - see https://github.com/waku-org/research/issues/61
+- Analyze decentralized storage protocols and their relevance e.g. as back-end storage for Store servers - see https://github.com/waku-org/research/issues/34
+- Analyze the role of message senders, in particular, whether they should pay for sending non-ephemeral messages - see https://github.com/waku-org/research/issues/32
+- Generalize incentivization protocol to other Waku light protocols: Lightpush and Filter.
