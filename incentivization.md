@@ -109,15 +109,15 @@ An incentivized Store protocol has the following extra steps:
 3. reputation
 4. results cross-checking
 
-In this document, we focus on the simplest viable i13n for Store (MVP).
-Compared to the fully-fledged protocol, the MVP version is simplified in the following ways:
+In this document, we focus on the simplest proof-of-concept i13n for Store (PoC).
+Compared to the fully-fledged protocol, the PoC version is simplified in the following ways:
 - cost calculation is based on a common-knowledge price;
 - there is no price advertisement and no price negotiation;
 - each query is paid for in a separate transaction, `txid` acts a proof of payment;
 - the reputation system is simplified (see below);
 - there is no results cross-checking.
 
-In the MVP protocol:
+In the PoC protocol:
 1. the client calculates the price based on the known rate per hour of history;
 2. the client pays the appropriate amount to the server's address;
 3. the client sends a `HistoryQuery` to the server alongside the proof of payment (`txid`);
@@ -128,7 +128,7 @@ In further subsections, we list the potential direction for future work towards 
 
 ## Pricing
 
-For MVP, we assume a constant price per hour of history.
+For PoC, we assume a constant price per hour of history.
 This price and the blockchain address of the server are assumed to be common knowledge.
 This simplifies the client-server interaction, avoiding the price negotiation step.
 
@@ -144,7 +144,7 @@ such as the total size of the relevant messages in the response.
 
 ## Payment
 
-For the MVP, each request is paid for with a separate transaction.
+For the PoC, each request is paid for with a separate transaction.
 The transaction hash (`txid`) acts as a proof of payment.
 The server verifies the payment by ensuring that:
 1. the transaction has been confirmed;
@@ -159,7 +159,7 @@ Other options could be:
 4. cryptographically ensured atomicity (similar to atomic swaps, Lightning, or Hopr).
 
 Our design considerations are:
-- the MVP protocol should be simple;
+- the PoC protocol should be simple;
 - servers are more "permanent" entities and are more likely to have long-lived identities;
 - it is more important to protect the clients's privacy than the server's privacy.
 
@@ -207,7 +207,7 @@ While rate limiting stops such attack, the server would need to link requests co
 
 As there is no consensus over past messages, a client may want to query multiple servers and merge their responses.
 Cross-checking helps ensure that servers are a) not censoring real messages; b) not injecting fake messages into history.
-Cross-checking is absent in MVP but may be considered later.
+Cross-checking is absent in PoC but may be considered later.
 
 ### Future work
 
