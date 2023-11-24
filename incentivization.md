@@ -66,7 +66,7 @@ There is no strict definition of a full node vs a light node in Waku (see [discu
 
 In light protocols, a client sends a request to a server, and a server performs some actions and returns a response:
 - [[Filter]]: the server will relay (only) messages that pass a filter to the client;
-- [[Store]]: the server responds with messages relayed within the specified earlier time frame;
+- [[Store]]: the server responds with messages relayed that matches a set of criteria
 - [[Lightpush]]: the server publishes the client's message to the Relay network.
 
 ## Waku i13n challenges
