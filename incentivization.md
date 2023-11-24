@@ -66,9 +66,9 @@ A server may sometimes be referred to as a full node, and a client as a light no
 There is no strict definition of a full node vs a light node in Waku (see [discussion](https://github.com/waku-org/research/issues/28)).
 
 In light protocols, a client sends a request to a server, and a server performs some actions and returns a response:
-- [[Store]]: the server responds with messages relayed that match a set of criteria;
-- [[Filter]]: the server will relay (only) messages that pass a filter to the client;
-- [[Lightpush]]: the server publishes the client's message to the Relay network.
+- [Store](https://rfc.vac.dev/spec/13/): the server responds with messages relayed that match a set of criteria;
+- [Filter](https://rfc.vac.dev/spec/12/): the server will relay (only) messages that pass a filter to the client;
+- [Lightpush](https://rfc.vac.dev/spec/19/): the server publishes the client's message to the Relay network.
 
 ## Waku i13n challenges
 
