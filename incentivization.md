@@ -5,7 +5,8 @@ TWN needs incentivization (shortened to i13n) to ensure proper node behavior.
 The goal of this document is to outline and contextualize our approach to TWN i13n.
 After providing an overview of Waku and relevant prior work,
 we focus on Waku Store - a client-server protocol for querying historical messages.
-We introduce a minimal viable addition to Store to enable i13n, and list research directions for future work.
+We introduce a minimal viable addition to Store to enable i13n,
+and list research directions for future work.
 
 # Incentivization in decentralized networks
 ## Incentivization tools
@@ -42,9 +43,9 @@ This non-monetary i13n policy has been proved to work in practice.
 
 Bitcoin has introduced proof-of-work (PoW) for native monetary rewards in a P2P network.
 PoW miners are automatically assigned newly mined coins for generating blocks.
-There are no intrinsic monetary punishments in Bitcoin.
-However, miners must expend physical resources before claiming the reward.
-Proof-of-stake (PoS), used in Ethereum and many other cryptocurrencies, introduces intrinsic monetary punishments.
+Miners must expend physical resources to generate a block.
+If the block is invalid, these expenses are not compensated (implicit monetary punishment).
+Proof-of-stake (PoS), used in Ethereum and many other cryptocurrencies, introduces explicit monetary punishments.
 PoS validators lock up (stake) native tokens and get rewarded for validating blocks or slashed for misbehavior.
 
 ### Decentralized storage
@@ -54,9 +55,9 @@ Their i13n methods combine techniques from early P2P file-sharing with blockchai
 
 # Waku background
 
-Waku is a family of protocols (see [architecture](https://waku.org/about/architect)) for a modular privacy-preserving censorship-resistant decentralized communications network.
+Waku is a [family of protocols](https://waku.org/about/architect) for a modular privacy-preserving censorship-resistant decentralized communication network.
 The backbone of Waku is the Relay protocol (and its spam-protected version [RLN-Relay](https://rfc.vac.dev/spec/17/)).
-Additionally, there are light protocols: Filter, Store, and Lightpush.
+Additionally, there are light protocols: Store, Filter, and Lightpush.
 Light protocols are also referred to as client-server protocols and request-response protocols.
 
 A server is a node running Relay and a server-side of at least one light protocol.
@@ -65,20 +66,20 @@ A server may sometimes be referred to as a full node, and a client as a light no
 There is no strict definition of a full node vs a light node in Waku (see [discussion](https://github.com/waku-org/research/issues/28)).
 
 In light protocols, a client sends a request to a server, and a server performs some actions and returns a response:
+- [[Store]]: the server responds with messages relayed that match a set of criteria;
 - [[Filter]]: the server will relay (only) messages that pass a filter to the client;
-- [[Store]]: the server responds with messages relayed that matches a set of criteria
 - [[Lightpush]]: the server publishes the client's message to the Relay network.
 
 ## Waku i13n challenges
 
-Waku lacks consensus or a native token, which brings it closer to reputation-incentivized file-sharing systems.
+Waku has no consensus and no native token, which brings it closer to reputation-incentivized file-sharing networks.
 As of late 2023, Waku only operates under reputation-based rewards and punishments.
 While [RLN-Relay](https://rfc.vac.dev/spec/17/) adds monetary punishments for spammers, slashing is yet to be activated.
 
-Monetary rewards and punishments should ideally be atomically linked with performance.
-A benefit of blockchains in this respect is that the desired behavior of miners or validators can be verified on-chain.
-Enforcing atomicity in decentralized data-focused networks is more challenging:
-it is non-trivial to prove that a certain piece of data has been relayed.
+Monetary rewards and punishments should ideally be atomically linked with the node's behavior.
+A benefit of blockchains in this respect is that the desired behavior of miners or validators can be verified automatically.
+Enforcing atomicity in a communication network is more challenging:
+it is non-trivial to prove that a given piece of data has been relayed.
 
 Our goal is to combine monetary and reputation-based incentives for Waku.
 Monetary incentives have demonstrated their robustness in blockchains.
@@ -86,15 +87,14 @@ We think they are necessary to scale the network beyond the initial phase when i
 
 ## Waku Store
 
-Waku Store is a light protocol for querying historic messages.
-It currently works as follows:
+Waku Store is a light protocol for querying historic messages that works as follows:
 1. the client sends a `HistoryQuery` to the server;
 2. the server sends a `HistoryResponse` to the client.
 
 The response may be split into multiple parts, as specified by pagination parameters in `PagingInfo`.
 
-We define a _relevant_ message as a message that matches a client-defined filter (e.g., it has been relayed within a specified time frame).
-Ideally, after receiving a request, a server should quickly send back a response containing all relevant messages and only them.
+We define a _relevant_ message as a message that matches client-defined criteria (e.g., relayed within a given time frame).
+Upon receiving a request, a server should quickly send back a response containing all and only relevant messages.
 
 # Waku Store incentivization
 
@@ -109,13 +109,13 @@ An incentivized Store protocol has the following extra steps:
 3. reputation
 4. results cross-checking
 
-In this document, we focus on the simplest proof-of-concept i13n for Store (PoC).
+In this document, we focus on the simplest proof-of-concept (PoC) i13n for Store.
 Compared to the fully-fledged protocol, the PoC version is simplified in the following ways:
 - cost calculation is based on a common-knowledge price;
 - there is no price advertisement and no price negotiation;
 - each query is paid for in a separate transaction, `txid` acts a proof of payment;
 - the reputation system is simplified (see below);
-- there is no results cross-checking.
+- the results are not cross-checked.
 
 In the PoC protocol:
 1. the client calculates the price based on the known rate per hour of history;
@@ -137,7 +137,7 @@ such as the total size of the relevant messages in the response.
 
 ### Future work
 
-- DoS protection: a client can overwhelm a server with requests and not proceed to payment. Countermeasure: ignore requests from the same client if they come too often; generalize a reputation system to servers ranking clients.
+- DoS protection - see https://github.com/waku-org/research/issues/66
 - Cost calculation - see https://github.com/waku-org/research/issues/35
 - Price advertisement - see https://github.com/waku-org/research/issues/51
 - Price negotiation - see https://github.com/waku-org/research/issues/52
@@ -200,9 +200,6 @@ Design a more comprehensive reputation system:
 - local reputation - see https://github.com/waku-org/research/issues/48
 - global reputation - see https://github.com/waku-org/research/issues/49
 
-Reputation may also be use to rank clients to prevent DoS attacks when a client overwhelms the server with requests.
-While rate limiting stops such attack, the server would need to link requests coming from one client, threatening its privacy.
-
 ## Results cross-checking
 
 As there is no consensus over past messages, a client may want to query multiple servers and merge their responses.
@@ -223,4 +220,4 @@ We should think about what the success metrics for an incentivized protocol are,
 - Analyze privacy issues - see https://github.com/waku-org/research/issues/61
 - Analyze decentralized storage protocols and their relevance e.g. as back-end storage for Store servers - see https://github.com/waku-org/research/issues/34
 - Analyze the role of message senders, in particular, whether they should pay for sending non-ephemeral messages - see https://github.com/waku-org/research/issues/32
-- Generalize incentivization protocol to other Waku light protocols: Lightpush and Filter.
+- Generalize incentivization protocol to other Waku light protocols (Lightpush and Filter) - see https://github.com/waku-org/research/issues/67.
