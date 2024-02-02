@@ -4,24 +4,27 @@ import numpy as np
 from analyze import load
 
 latencies = [load("raw/latency_10kb.txt", "arrival_diff="),
+             load("raw/latency_scenario2_10kb.txt", "arrival_diff="),
              load("raw/latency_100kb.txt", "arrival_diff="),
-             load("raw/latency_500kb.txt", "arrival_diff=")]
-
-print(latencies)
+             load("raw/latency_scenario2_100kb.txt", "arrival_diff="),
+             #load("raw/latency_500kb.txt", "arrival_diff="),
+             #load("raw/latency_scenario2_500kb.txt", "arrival_diff=")
+             ]
 
 with plt.style.context(['science', 'ieee']):
     fig, ax = plt.subplots()
     bp = ax.boxplot(latencies,notch=True, vert=True, patch_artist=True,
                     showfliers=True, whis=100000000000)
 
-    for patch, color in zip(bp['boxes'], ['red', 'blue', 'green']):
+    for patch, color in zip(bp['boxes'], ['red', 'blue', 'gold', 'yellowgreen']):
         patch.set_facecolor(color)
 
-    ax.set(title="Message latencies distribution\nD=6 nodes=1000 samples="+str(latencies[1].size), xlabel='Scenario', ylabel='Message propagation time (ms)')
+    ax.set(title="Message latencies distribution\nD=6 vs D=3 nodes=1000 samples="+str(latencies[1].size), xlabel='Scenario', ylabel='Message propagation time (ms)')
     ax.grid(linestyle='-')
     my_legend = []
-    for msg_size in [10, 100, 500]:
-        my_legend.append("Message size: " + str(msg_size) + " kB")
+    for msg_size in [10, 100]:
+        for d in [6, 3]:
+          my_legend.append("Message size: " + str(msg_size) + " kB"+ " D="+ str(d))
     ax.legend([bp["boxes"][i] for i in range(len(my_legend))], my_legend, loc='upper left', fontsize=5)
 
 for i, line in enumerate(bp['medians']):
@@ -30,4 +33,4 @@ for i, line in enumerate(bp['medians']):
     ax.annotate(text, xy=(x + 0.1, y), fontsize=6)
 
 fig.set_size_inches(4, 3)
-fig.savefig('plot.jpg', dpi=600)
+fig.savefig('latencies_d6_vs_d3.svg', dpi=600)
