@@ -14,13 +14,13 @@ network:
       graph [
         node [
           id 0
-          host_bandwidth_up "38 Mbit"
-          host_bandwidth_down "83 Mbit"
+          host_bandwidth_up "100 Mbit"
+          host_bandwidth_down "100 Mbit"
         ]
         edge [
           source 0
           target 0
-          latency "100 ms"
+          latency "150 ms"
           packet_loss 0.0
         ]
       ]
@@ -39,8 +39,9 @@ hosts:
             --rln-relay-dynamic=false
             --rln-relay-membership-index=0
             --nat=extip:0.0.0.0
+            --max-msg-size=600KB
       start_time: 5s
-      environment: {"PEERS": "1000", "CONNECTTO": "50", "NUMPUBLISHERS": "1", "MSGSIZEKBYTES": "10"}
+      environment: {"PEERS": "1000", "CONNECTTO": "25", "NUMPUBLISHERS": "1", "MSGSIZEKBYTES": "10"}
   peer2: *client_host
   peer3: *client_host
   peer4: *client_host
