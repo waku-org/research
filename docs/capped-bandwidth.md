@@ -14,7 +14,7 @@ The main problem is that one can't just chose the bandwidth it allocates to `rel
 
 So waku needs an upper boundary on the in/out bandwidth (mbps) it consumes. Just like apps have requirements on cpu and memory, we should set a requirement on bandwidth, and then guarantee that if you have that bandwidth, you will be able to run a node without any problem. And this is the tricky part.
 
-## Current Approach
+## Current approach
 
 With the recent productisation effort of RLN, we have part of the problem solved, but not entirely. RLN offers an improvement, since now have a pseudo-identity (RLN membership) that can be used to rate limit users, enforcing a limit on how often it can send a message (eg 1 message every 10 seconds). We assume of course, that getting said RLN membership requires to pay something, or put something at stake, so that it can't be sibyl attacked.
 
@@ -32,11 +32,10 @@ A naive (and not practical) way of fixing this, would be to design the network f
 In both cases we cap the traffic, however, if we design The Waku Network like this, it will be massively underutilized. As an alternative, the approach we should follow is to rely on statistics, and assume that i) not everyone will be using the network at the same time and ii) message size will vary. So while its impossible to guarantee any capped bandwidth, we should be able to guarantee that with 95 or 99% confidence the bandwidth will stay around a given value, with a maximum variance.
 
 The current RLN approach of rate limiting 1 message every x seconds is not very practical. The current RLN limitations are enforced on 1 message every x time (called `epoch`). So we currently can allow 1 msg per second or 1 msg per 10 seconds by just modifying the `epoch` size. But this has some drawbacks. Unfortunately, neither of the options are viable for waku:
-- i) A small `epoch` size (eg `1 seconds`) would allow a membership to publish `24*3600/1=86400` messages a day, which would be too much. In exchange, this allows a user to publish messages right after the other, since it just have to wait 1 second between messages. Problem is that having an rln membership being able to publish this amount of messages, is a bit of a liability for waku, and hinders scalability.
-- ii) A high `epoch` size (eg `240 seconds`) would allow a membership to publish `24*3600/240=360` messages a day, which is a more reasonable limit, but this won't allow a user to publish two messages one right after the other, meaning that if you publish a message, you have to way 240 seconds to publish the next one. Not practical, a no go.
+1. A small `epoch` size (eg `1 seconds`) would allow a membership to publish `24*3600/1=86400` messages a day, which would be too much. In exchange, this allows a user to publish messages right after the other, since it just have to wait 1 second between messages. Problem is that having an rln membership being able to publish this amount of messages, is a bit of a liability for waku, and hinders scalability.
+2. A high `epoch` size (eg `240 seconds`) would allow a membership to publish `24*3600/240=360` messages a day, which is a more reasonable limit, but this won't allow a user to publish two messages one right after the other, meaning that if you publish a message, you have to way 240 seconds to publish the next one. Not practical, a no go.
 
 But what if we widen the window size, and allow multiple messages within that window?
-
 
 ## Solution
 
