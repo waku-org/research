@@ -11,11 +11,15 @@ latencies = pd.DataFrame({
     "500kb": load("raw/paper_latency_500kb_v2.txt", "arrival_diff=")})
 
 num_bins = 50
-#fig, ax = plt.subplots(2, 2)
 
-
-
-
+# Best (1 hop) and worst (4 hops) latencies in ms
+# See Table 2 from paper
+multi_host_simulations = {
+    "2kb": [364, 709],
+    "25kb": [436, 1084],
+    "100kb": [471, 1922],
+    "500kb": [564, 2988]
+}
 
 with plt.style.context(['science', 'ieee']):
     fig, ax = plt.subplots(2, 2)
@@ -27,15 +31,26 @@ with plt.style.context(['science', 'ieee']):
     ]
 
     for (size, pos) in possitions:
+        # Plot single host results
         latencies.hist(size, bins=num_bins, ax=pos)
-        pos.grid(False)
-        text = r'$ \mu=$' + '{:.0f};'.format(latencies[size].mean(axis=0)) + r' $ p_{95}=$' + '{:.0f};'.format(
-            np.percentile(latencies[size], 95)) + ' max={:.0f}'.format(latencies[size].max())
-        pos.set_title(f"msgsize={size}; " + text, fontsize=6)
 
-    ax[0][0].set(ylabel='Amount samples')
-    ax[1][0].set(xlabel='Latency (ms)', ylabel='Amount samples')
+        # Plot multi host results
+        pos.axvline(x=multi_host_simulations[size][0], color='red', linestyle='--')
+        pos.axvline(x=multi_host_simulations[size][1], color='red', linestyle='--')
+
+        pos.grid(False)
+        title = ('size={size}\n' + r'$\mu$={mean:.0f} $p_{{95}}$={p95:.0f} min={min:.0f} max={max:.0f}').format(
+            size=size,
+            mean=latencies[size].mean(axis=0),
+            p95=np.percentile(latencies[size], 95),
+            min=latencies[size].min(),
+            max=latencies[size].max())
+        pos.set_title(title, fontsize=8)
+
+    ax[0][0].set(ylabel='Amount messages')
+    ax[1][0].set(xlabel='Latency (ms)', ylabel='Amount messages')
     ax[1][1].set(xlabel='Latency (ms)')
 
+plt.tight_layout(pad=0, w_pad=0.1, h_pad=0.1)
 fig.set_size_inches(4, 3)
 fig.savefig('paper_distribution.svg', dpi=600)
