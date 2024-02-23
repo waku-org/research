@@ -32,7 +32,7 @@ with plt.style.context(['science', 'ieee']):
 
     for (size, pos) in possitions:
         # Plot single host results
-        latencies.hist(size, bins=num_bins, ax=pos)
+        latencies.hist(size, bins=num_bins, ax=pos, density=True)
 
         # Plot multi host results
         pos.axvline(x=multi_host_simulations[size][0], color='red', linestyle='--')
@@ -47,10 +47,10 @@ with plt.style.context(['science', 'ieee']):
             max=latencies[size].max())
         pos.set_title(title, fontsize=8)
 
-    ax[0][0].set(ylabel='Amount messages')
-    ax[1][0].set(xlabel='Latency (ms)', ylabel='Amount messages')
+    ax[0][0].set(ylabel='Cumulative message share')
+    ax[1][0].set(xlabel='Latency (ms)', ylabel='Cumulative message share')
     ax[1][1].set(xlabel='Latency (ms)')
 
-plt.tight_layout(pad=0, w_pad=0.1, h_pad=0.1)
+plt.tight_layout(pad=0, w_pad=0, h_pad=0.7)
 fig.set_size_inches(4, 3)
 fig.savefig('paper_distribution.svg', dpi=600)
