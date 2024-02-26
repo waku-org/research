@@ -119,4 +119,16 @@ curl -X POST "http://SINGAPORE_IP:8645/relay/v1/messages/%2Fwaku%2F2%2Ftest" \
 
 If you check the logs of every machine, you will find the timestamp of when each node received the message.
 
+Measuring the latency between each node can be interesting. It can be done with the [wakucanary](https://github.com/waku-org/nwaku/tree/master/apps/wakucanary) tool as follows.
+
+Run `nwaku` in one  node:
+```
+docker run -p 60000:60000 harbor.status.im/wakuorg/nwaku:v0.25.0 --relay=true --nodekey=b03f13c0e075643e39b19ddef9206f868e94b759c7e847383b455f8d1991e695
+```
+
+And ping from other node. `REPLACE_IP` by the nodes public ip. The ping in `ms` will be displayed in the logs, measured using the `ping` protocol from `libp2p`.
+```
+docker run wakucanary:a1d5cbd -a=/ip4/REPLACE_IP/tcp/60000/p2p/16Uiu2HAmBxK6wbHqGtTKgEuYtuCxQCxGRKcu7iZeouEpaUr7ewwK -p=relay --ping
+```
+
 
