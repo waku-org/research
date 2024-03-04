@@ -55,7 +55,7 @@ with plt.style.context(['science', 'ieee']):
         else:
             pos.legend(fontsize="5", loc="best")
 
-    ax[0][0].set(ylabel='Cumulative message share')
+    ax[0][0].set(ylabel='Message share')
     ax[1][0].set(xlabel='Latency (ms)', ylabel='Cumulative message share')
     ax[1][1].set(xlabel='Latency (ms)')
 
