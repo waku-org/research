@@ -26,22 +26,25 @@ with plt.style.context(['science', 'ieee']):
     fig, ax1 = plt.subplots()
     ax2 = ax1.twinx()
 
-    ax1.plot(ds, delays_1, color='r', label=r"$N_1=$"+str(N1))
-    ax1.plot(ds, delays_2, color='g', label=r"$N_2=$"+str(N2))
-    ax1.plot(ds, delays_3, color='b', label=r"$N_3=$"+str(N3))
-    ax2.plot(ds, ds, color='y', label="Bandwidth ampl.")
-    print(delays_1)
-    print(ds)
+    ax1.plot(ds, delays_1, color='r', label=str(N1)+" nodes")
+    ax1.plot(ds, delays_2, color='g', label=str(N2)+" nodes")
+    ax1.plot(ds, delays_3, color='b', label=str(N3)+" nodes")
+    ax2.plot(ds, ds, color='y', label="Bandwidth\namplification")
     ax1.autoscale(tight=True)
     ax2.autoscale(tight=True)
-    ax1.legend(loc=0)
-    ax2.legend(loc=0)
-    ax1.set(title='Worst case maximum hops vs bandwidth')
-    ax1.set(**dict(xlabel='Outbound degree (D)', ylabel='Amount of hops'))
-    ax2.set(**dict(ylabel='Bandwidth amplification'))
-    #ax2.set_xlim([2, 14])
-    fig.savefig('message_hops.svg', dpi=300)
+    ax1.legend(loc=(0.08, 0.7))
+    ax2.legend(loc=(0.5, 0.76))
+    ax1.set(title='$h_{max}$ and bandwidth amplification depending on node degree $D$\n')
+    ax1.set(**dict(xlabel='Node degree (D)', ylabel='Maximum number of hops ($h_{max}$)\n'))
+    ax2.set(**dict(ylabel='\nBandwidth amplification'))
 
+    # Set the limits of the x-axis and y-axis
+    ax1.set_xlim(2, 14)
+    ax1.set_ylim(2, ax1.get_ylim()[1])  # Ensure that the lower limit is 2
+    
+    # Set the limits of the second y-axis to match the first y-axis
+    ax2.set_ylim(ax1.get_ylim())
+
+    fig.savefig('message_hops.svg', dpi=600)
     plt.close()
-
 
