@@ -39,7 +39,7 @@ with plt.style.context(['science', 'ieee']):
     ax2.set(**dict(ylabel='\nBandwidth amplification'))
 
     # Set the limits of the x-axis and y-axis
-    ax1.set_xlim(2, 15)
+    ax1.set_xlim(2, 14)
     ax1.set_ylim(2, ax1.get_ylim()[1])  # Ensure that the lower limit is 2
     
     # Set the limits of the second y-axis to match the first y-axis
