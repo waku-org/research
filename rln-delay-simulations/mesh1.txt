@@ -48,11 +48,11 @@
 % Text Node
 \draw (160,34.4) node [anchor=north west][inner sep=0.75pt]    {$P_{2}$};
 % Text Node
-\draw (154,177.4) node [anchor=north west][inner sep=0.75pt]    {$P_{3}$};
+\draw (152,239.4) node [anchor=north west][inner sep=0.75pt]    {$P_{3}$};
 % Text Node
 \draw (235,72.4) node [anchor=north west][inner sep=0.75pt]    {$P_{4}$};
 % Text Node
-\draw (335,185.4) node [anchor=north west][inner sep=0.75pt]    {$P_{5}$};
+\draw (332,242.4) node [anchor=north west][inner sep=0.75pt]    {$P_{5}$};
 % Text Node
 \draw (278,20.4) node [anchor=north west][inner sep=0.75pt]    {$P_{6}$};
 % Text Node
@@ -68,15 +68,15 @@
 % Text Node
 \draw (379,187.4) node [anchor=north west][inner sep=0.75pt]  [color={rgb, 255:red, 208; green, 2; blue, 27 }  ,opacity=1 ]  {$L_{t}^{5\rightarrow 8}$};
 % Text Node
-\draw (153,235.4) node [anchor=north west][inner sep=0.75pt]  [color={rgb, 255:red, 208; green, 2; blue, 27 }  ,opacity=1 ]  {$L_{v}^{3}$};
+\draw (155,179.4) node [anchor=north west][inner sep=0.75pt]  [color={rgb, 255:red, 208; green, 2; blue, 27 }  ,opacity=1 ]  {$L_{v}^{3}$};
 % Text Node
 \draw (238,129.4) node [anchor=north west][inner sep=0.75pt]  [color={rgb, 255:red, 208; green, 2; blue, 27 }  ,opacity=1 ]  {$L_{v}^{4}$};
 % Text Node
-\draw (332,240.4) node [anchor=north west][inner sep=0.75pt]  [color={rgb, 255:red, 208; green, 2; blue, 27 }  ,opacity=1 ]  {$L_{v}^{5}$};
+\draw (334,180.4) node [anchor=north west][inner sep=0.75pt]  [color={rgb, 255:red, 208; green, 2; blue, 27 }  ,opacity=1 ]  {$L_{v}^{5}$};
 % Text Node
-\draw (401,115.4) node [anchor=north west][inner sep=0.75pt]  [color={rgb, 255:red, 208; green, 2; blue, 27 }  ,opacity=1 ]  {$L_{v}^{8}$};
+\draw (404,115.4) node [anchor=north west][inner sep=0.75pt]  [color={rgb, 255:red, 208; green, 2; blue, 27 }  ,opacity=1 ]  {$L_{v}^{8}$};
 % Text Node
-\draw (122,113.4) node [anchor=north west][inner sep=0.75pt]  [color={rgb, 255:red, 208; green, 2; blue, 27 }  ,opacity=1 ]  {$L_{pgen}$};
+\draw (122,113.4) node [anchor=north west][inner sep=0.75pt]  [color={rgb, 255:red, 208; green, 2; blue, 27 }  ,opacity=1 ]  {$L_{g}$};
 
 
 \end{tikzpicture}
