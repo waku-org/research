@@ -1,5 +1,8 @@
 # rln-delay-simulations
 
+> All this work was presented as a paper "Message Latency in Waku Relay with Rate Limiting Nullifiers" in DLT2024 conference in Turin, Italy. See the [presentation](TODO) and the [paper](TODO).
+
+
 This folder contains two methods of simulations, that aim to estimate the latency of waku messages in the network:
 * Method 1: Using `shadow`, which allows simulating hundreds of nodes in a single machine, considering network conditions but not CPU. See [report](https://github.com/waku-org/research/issues/42)  
 * Method 2: Using Digital Ocean, deploying real nodes in different locations in real machines with real network conditions, but due to cost limited to few nodes.
