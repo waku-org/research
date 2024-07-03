@@ -1,6 +1,6 @@
 # rln-delay-simulations
 
-> All this work was presented as a paper "Message Latency in Waku Relay with Rate Limiting Nullifiers" in DLT2024 conference in Turin, Italy. See the [presentation](TODO) and the [paper](TODO).
+> All this work was presented as a paper "Message Latency in Waku Relay with Rate Limiting Nullifiers" in DLT2024 conference in Turin, Italy. See the [presentation](https://github.com/waku-org/research/blob/master/rln-delay-simulations/12_Revuelta.pdf) and the [paper](https://eprint.iacr.org/2024/1073).
 
 
 This folder contains two methods of simulations, that aim to estimate the latency of waku messages in the network:
