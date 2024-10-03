@@ -38,6 +38,10 @@ Putting this all together and assuming:
 * Messages are sent uniformly distributed.
 * All users totally consumes its rate-limit.
 
-We can expect the following message rate and bandwidth per shard:
+We can expect the following message rate and bandwidth for the whole network:
 * A traffic of `266 msg/second` on average (`160000/600`)
 * A traffic of `6 MBps` on average (266 * 4KB * 6), where `4KB` is the average message size and `6` is the average gossipsub D-out degree.
+
+And assuming a uniform distribution of traffic among 8 shards:
+* `33 msg/second` per shard.
+* `0.75 MBps` per shard. 
