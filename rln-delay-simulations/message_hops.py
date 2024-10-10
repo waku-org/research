@@ -12,9 +12,12 @@ N3 = 100000  # number of nodes in the network (3)
 
 def delay_last_hop(n, d, l):
     # multiply by l for latencies
-    return ceil(log(n)/log(d))
+    numerator = log(((n - 1) * (d - 2) / d) + 1)
+    denominator = log(d - 1)
+    return ceil(numerator / denominator)
 
-ds = np.arange(2,15)
+
+ds = np.arange(3,15)
 ls = np.ones(len(ds))*L
 
 # astype(int) is ok since ceil() returns integers
@@ -39,8 +42,8 @@ with plt.style.context(['science', 'ieee']):
     ax2.set(**dict(ylabel='\nBandwidth amplification'))
 
     # Set the limits of the x-axis and y-axis
-    ax1.set_xlim(2, 14)
-    ax1.set_ylim(2, ax1.get_ylim()[1])  # Ensure that the lower limit is 2
+    ax1.set_xlim(3, 14)
+    ax1.set_ylim(3, ax1.get_ylim()[1])  # Ensure that the lower limit is 2
     
     # Set the limits of the second y-axis to match the first y-axis
     ax2.set_ylim(ax1.get_ylim())
