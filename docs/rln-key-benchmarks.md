@@ -49,7 +49,7 @@ In the following simulation, we can see `100` nwaku interconnected nodes, where 
 
 Using RLN implies that waku should now piggyback on a blockchain (the case study uses Ethereum Sepolia) and has to stay up to date with the latest events emitted by the rln smart contract. These events are used to locally construct a tree that contains all members allowed to create valid proofs to send messages. Some numbers:
 - A tree with 10k members takes `2Mbytes` of space. Negligible.
-- A tree with 10k members takes `<4 minutes to synchronize. Assumable since it's done just once.
+- A tree with 10k members takes `<4` minutes to synchronize. Assumable since it's done just once.
 - With a block range of 5000 blocks for each request, we would need `520 requests` to synchronize 1 year of historical data from the tree. Assumable since most of the free endpoints out there allow 100k/day.
 
 ## Performance relay vs. rln-relay
